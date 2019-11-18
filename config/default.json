@@ -1,4 +1,6 @@
 {
     "mongoURI": "mongodb://localhost:27017/dev_social_network",
-    "jwtToken": "mysecrettoken"
+    "jwtToken": "mysecrettoken",
+    "githubClientId": "",
+    "githubSecret": ""
 }
