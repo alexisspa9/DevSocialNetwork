@@ -1,8 +1,12 @@
-import { combineReducers } from 'redux';
-import alert from './alert';
-import auth from './auth';
+import { combineReducers } from "redux";
+import authReducer from "./authReducer.js";
+import errorReducer from "./errorReducer.js";
+import profileReducer from "./profileReducer.js";
+import postReducer from "./postReducer.js";
 
 export default combineReducers({
-    alert,
-    auth
+  auth: authReducer,
+  errors: errorReducer,
+  profile: profileReducer,
+  post: postReducer
 });

@@ -1,62 +1,104 @@
-import React, { Fragment, useState } from 'react';
-import { Link, Redirect } from 'react-router-dom';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types'
-import { login } from '../../actions/auth';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { loginUser } from "../../actions/authActions.js";
+import TextFieldGroup from "../common/TextFieldGroup.js";
 
+class Login extends Component {
+  constructor() {
+    super();
+    this.state = {
+      email: "",
+      password: "",
+      errors: {}
+    };
 
-const Login = ({ login, isAuthenticated }) => {
-    const [formData, setFormData] = useState({
-        email: '',
-        password: ''
-    });
+    this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+  }
 
-    const { email, password } = formData;
-    const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
-    const onSubmit = async e => {
-        e.preventDefault();
-        login(email, password);
+  componentDidMount() {
+    if (this.props.auth.isAuthenticated) {
+      this.props.history.push("/dashboard");
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.auth.isAuthenticated) {
+      this.props.history.push("/dashboard");
     }
 
-    // Redirect if logged in
-
-    if(isAuthenticated) {
-        return <Redirect to='/dashboard' />
+    if (nextProps.errors) {
+      this.setState({
+        errors: nextProps.errors
+      });
     }
+  }
+
+  onChange(e) {
+    this.setState({ [e.target.name]: e.target.value });
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+    const userData = {
+      email: this.state.email,
+      password: this.state.password
+    };
+
+    this.props.loginUser(userData);
+  }
+
+  render() {
+    const { errors } = this.state;
 
     return (
-        <Fragment>
-            <h1 className="large text-primary">Sign In</h1>
-            <p className="lead"><i className="fas fa-user"></i> Sign Into Your Account</p>
-            <form className="form" onSubmit={e => onSubmit(e)}>
-                <div className="form-group">
-                    <input type="email" placeholder="Email Address" name="email" value={email} onChange={e => onChange(e)} required />
-                </div>
-                <div className="form-group">
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        name="password"
-                        minLength="6"
-                        value={password} onChange={e => onChange(e)}
-                    />
-                </div>
-                <input type="submit" className="btn btn-primary" value="Login" />
-            </form>
-            <p className="my-1">
-                Don't have an account? <Link to="/register">Sign Up</Link>
-            </p>
-        </Fragment>
+      <div className="login">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-8 m-auto">
+              <h1 className="display-4 text-center">Log In</h1>
+              <p className="lead text-center">
+                Sign in to your DevConnector account
+              </p>
+              <form onSubmit={this.onSubmit}>
+                <TextFieldGroup
+                  placeholder="Email Address"
+                  name="email"
+                  type="email"
+                  value={this.state.email}
+                  onChange={this.onChange}
+                  error={errors.email}
+                />
+
+                <TextFieldGroup
+                  placeholder="Password"
+                  name="password"
+                  type="password"
+                  value={this.state.password}
+                  onChange={this.onChange}
+                  error={errors.password}
+                />
+
+                <input type="submit" className="btn btn-info btn-block mt-4" />
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     );
+  }
 }
 
 Login.propTypes = {
-    login: PropTypes.func.isRequired,
-    isAuthenticated: PropTypes.bool,
-}
+  loginUser: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired
+};
 
 const mapStateToProps = state => ({
-    isAuthenticated: state.auth.isAuthenticated,
+  auth: state.auth,
+  errors: state.errors
 });
 
-export default connect(mapStateToProps, { login })(Login);
+export default connect(mapStateToProps, { loginUser })(Login);
